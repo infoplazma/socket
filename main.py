@@ -1,19 +1,21 @@
 import socket
+
+from views import index, blog
+
 from icecream import ic
 
 ic.configureOutput(includeContext=True)
 
 URLS = {
-    r"/": 'hello index',
-    r"/blog": "hello blog",
-    r'/favicon.ico': "hello favicon"
+    r"/": index,
+    r"/blog": blog,
 }
 
 
 def parse_request(request: str) -> tuple:
     parsed = request.split(' ')
     method = parsed[0]
-    assert len(parsed) > 1, f"error {request=} {parsed=}"
+    assert len(parsed) > 1, f"{request=} {parsed=}"
     url = parsed[1]
     return method, url
 
@@ -33,7 +35,7 @@ def generate_content(code: str, url: str) -> str:
         return '<h1>404 Not found</h1>'
     elif code == 405:
         return '<h1>Method not allowed</h1>'
-    return "<h1>{}</h1>".format(URLS[url])
+    return URLS[url]()
 
 
 def generate_response(request: str) -> str:
@@ -60,9 +62,9 @@ def run():
         request = client_socket.recv(1024)
 
         # print(request.decode('utf-8'))
-        print(request)
+        print(f"{request=}")
         print()
-        print(addr)
+        print(f"{addr=}")
 
         response = generate_response(request.decode('utf-8'))
 
