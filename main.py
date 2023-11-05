@@ -13,12 +13,12 @@ URLS = {
 def parse_request(request: str) -> tuple:
     parsed = request.split(' ')
     method = parsed[0]
+    assert len(parsed) > 1, f"error {request=} {parsed=}"
     url = parsed[1]
     return method, url
 
 
 def generate_headers(method: str, url: str) -> tuple:
-    ic(method, url)
     if not method == "GET":
         return 'HTTP/1.1 405 Method not allowed\n\n', 405
 
@@ -28,10 +28,19 @@ def generate_headers(method: str, url: str) -> tuple:
     return 'HTTP/1.1 200 OK\n\n', 200
 
 
+def generate_content(code: str, url: str) -> str:
+    if code == 404:
+        return '<h1>404 Not found</h1>'
+    elif code == 405:
+        return '<h1>Method not allowed</h1>'
+    return "<h1>{}</h1>".format(URLS[url])
+
+
 def generate_response(request: str) -> str:
     method, url = parse_request(request)
     headers, code = generate_headers(method, url)
-    body = '<h1>hello world</h1>'
+    body = generate_content(code, url)
+    ic(method, url, headers, code, body)
     return (headers + body).encode()
 
 
